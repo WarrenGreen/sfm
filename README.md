@@ -1,4 +1,4 @@
 # sfm_desk
-Recovering camera poses 
+Finding keypoint matches between frames 
 
-![keypoint matches](https://github.com/WarrenGreen/sfm_desk/blob/master/desk_point_matches/DSC02640.JPG?raw=true)
+![keypoint matches](https://github.com/WarrenGreen/sfm_desk/blob/master/data/desk_point_matches/DSC02640.JPG?raw=true)
