@@ -1,6 +1,9 @@
+from _ast import Tuple
+
 import numpy as np
 
-def nn_match_two_way(desc1, desc2, nn_thresh):
+
+def superpoint_match_two_way(desc1, desc2, nn_thresh):
     """
     Performs two-way nearest neighbor matching of two sets of descriptors, such
     that the NN match from descriptor A->B must equal the NN match from B->A.
@@ -17,12 +20,12 @@ def nn_match_two_way(desc1, desc2, nn_thresh):
     """
     assert desc1.shape[0] == desc2.shape[0]
     if desc1.shape[1] == 0 or desc2.shape[1] == 0:
-      return np.zeros((3, 0))
+        return np.zeros((3, 0))
     if nn_thresh < 0.0:
-      raise ValueError('\'nn_thresh\' should be non-negative')
+        raise ValueError("'nn_thresh' should be non-negative")
     # Compute L2 distance. Easy since vectors are unit normalized.
     dmat = np.dot(desc1.T, desc2)
-    dmat = np.sqrt(2-2*np.clip(dmat, -1, 1))
+    dmat = np.sqrt(2 - 2 * np.clip(dmat, -1, 1))
     # Get NN indices and scores.
     idx = np.argmin(dmat, axis=1)
     scores = dmat[np.arange(dmat.shape[0]), idx]
@@ -43,3 +46,18 @@ def nn_match_two_way(desc1, desc2, nn_thresh):
     matches[1, :] = m_idx2
     matches[2, :] = scores
     return matches
+
+
+def get_int_or_tuple(var, required_length=2):
+    if isinstance(var, int):
+        var_1 = var
+        var_2 = var
+    elif isinstance(var, Tuple) and len(var) == required_length:
+        var_1, var_2 = var
+    else:
+        raise ValueError(
+            f"Variable must be a tuple of length {required_length} or an int.",
+            f"Found {type(var).__name__}{(' of length ' + str(len(var))) if hasattr(var, '__len__') else ''}.",
+        )
+
+    return var_1, var_2
