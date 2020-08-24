@@ -3,7 +3,7 @@ from _ast import Tuple
 import cv2
 import numpy as np
 
-from util import get_int_or_tuple
+from sfm.util import get_int_or_tuple
 
 
 class Camera:
@@ -35,14 +35,14 @@ class Camera:
             self._translation_vectors[ref_cam_index] = t_vec
             self._rotation_vectors[ref_cam_index] = cv2.Rodrigues(r_matrix)
 
-        mat = np.zeros(3)
+        mat = np.zeros((3, 3))
         mat[0][0] = self.focal_x
         mat[1][1] = self.focal_y
         mat[0][1] = self.skew
         mat[0][2] = self.center_x
         mat[1][2] = self.center_y
         mat[2][2] = 1
-        self.intrinsic_matrix = mat
+        self.intrinsics_matrix = mat
 
     def get_extrinsics_matrix(self, ref_camera_index):
         """
@@ -54,10 +54,15 @@ class Camera:
         Returns:
             (Tuple[ndarray, ndarray])
         """
-        return (
-            self._rotation_matrices[ref_camera_index],
-            self._translation_vectors[ref_camera_index],
-        )
+        if ref_camera_index is None:
+            r_mat = np.eye(3)
+            t_vec = np.zeros((1, 3))
+            return r_mat, t_vec
+        else:
+            return (
+                self._rotation_matrices[ref_camera_index],
+                self._translation_vectors[ref_camera_index],
+            )
 
     def get_translation_vector(self, ref_camera_index):
         return self._translation_vectors[ref_camera_index]
@@ -94,7 +99,14 @@ class Camera:
         v = self.focal_y * y_prime + self.center_y
         return u, v
 
+    def get_projection_matrix(self, ref_camera_index):
+        r_mat, t_vec = self.get_extrinsics_matrix(ref_camera_index)
+        rt_mat = np.hstack((r_mat,  t_vec))
+        k_mat = self.intrinsics_matrix
+        return np.dot(k_mat, rt_mat)
+
     def to_vector_format(self, ref_camera_index):
+        """ Vector format used for bundle adjustment. """
         return np.concatenate(
             self.get_rotation_vector(ref_camera_index),
             self.get_translation_vector(ref_camera_index),
@@ -103,6 +115,7 @@ class Camera:
 
     @classmethod
     def from_vector_format(cls, vector, ref_camera_index=0):
+        """ Vector format used for bundle adjustment. """
         r_vec = vector[:3]
         r_mat = cv2.Rodrigues(r_vec)
         t_vec = vector[3:7]
