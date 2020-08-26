@@ -49,6 +49,16 @@ def superpoint_match_two_way(desc1, desc2, nn_thresh):
 
 
 def get_int_or_tuple(var, required_length=2):
+    """
+    Retrieve two values from either a single int or n-value tuple.
+
+    Args:
+        var (Union[int, Tuple[int, int]]):
+        required_length (int):
+
+    Returns:
+        (Tuple[int, int])
+    """
     if isinstance(var, int):
         var_1 = var
         var_2 = var

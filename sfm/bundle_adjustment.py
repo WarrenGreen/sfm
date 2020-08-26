@@ -63,7 +63,7 @@ def projection_residuals(
     return residuals
 
 
-def optimize(residual_func, n_cameras, n_3d_points, camera_point_mappings, points_2d):
+def optimize(residual_func, n_cameras, n_3d_points, camera_indices, points_3d_indices, points_2d):
     """
 
     Args:
@@ -75,13 +75,8 @@ def optimize(residual_func, n_cameras, n_3d_points, camera_point_mappings, point
 
     """
     x0 = residual_func()
-    camera_indices, point_3d_indices = [], []
-    for camera_index, point_3d_index, _ in camera_point_mappings:
-        camera_indices.append(camera_index)
-        point_3d_indices.append(point_3d_index)
-
     camera_indices = np.array(camera_indices)
-    point_3d_indices = np.array(point_3d_indices)
+    point_3d_indices = np.array(points_3d_indices)
     jac_sparsity_mat = jac_sparsity_matrix(
         n_cameras, n_3d_points, camera_indices, point_3d_indices
     )

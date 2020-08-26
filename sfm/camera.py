@@ -56,7 +56,7 @@ class Camera:
         """
         if ref_camera_index is None:
             r_mat = np.eye(3)
-            t_vec = np.zeros((1, 3))
+            t_vec = np.zeros((3, 1))
             return r_mat, t_vec
         else:
             return (
@@ -101,7 +101,10 @@ class Camera:
 
     def get_projection_matrix(self, ref_camera_index):
         r_mat, t_vec = self.get_extrinsics_matrix(ref_camera_index)
-        rt_mat = np.hstack((r_mat,  t_vec))
+        try:
+            rt_mat = np.hstack((r_mat,  t_vec))
+        except ValueError as e:
+            import pdb;pdb.set_trace()
         k_mat = self.intrinsics_matrix
         return np.dot(k_mat, rt_mat)
 
